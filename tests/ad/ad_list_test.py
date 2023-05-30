@@ -17,8 +17,33 @@ def test_ad_list(client):
 
 
 @pytest.mark.django_db
-def test_ad_retrieve(client):
+def test_ad_retrieve(client, access_token):
     ad = AdFactory.create()
-    response = client.get(f"/ad/{ad.pk}/")
+    response = client.get(f"/ad/{ad.pk}/", HTTP_AUTHORIZATION=f"Bearer {access_token}")
     assert response.status_code == status.HTTP_200_OK
     assert response.data == AdDetailSerializer(ad).data
+
+
+@pytest.mark.django_db
+def test_ad_create(client, user, category, access_token):
+    data = {
+        "author": user.username,
+        "category": category.name,
+        "name": "котопесолошадь",
+        "price": 313
+    }
+
+    expected_data = {
+        "id": 1,
+        "author": user.username,
+        "category": category.name,
+        "is_published": False,
+        "name": "котопесолошадь",
+        "price": 313,
+        "description": None,
+        "image": None
+    }
+    response = client.post("/ad/", data=data, HTTP_AUTHORIZATION=f"Bearer {access_token}")
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.data == expected_data
