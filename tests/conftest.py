@@ -1,5 +1,5 @@
 from pytest_factoryboy import register
-from factories import *
+from tests.factories import *
 
 pytest_plugins = "test.fixtures"
 
